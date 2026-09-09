@@ -24,12 +24,14 @@ data class RenderSettings(
 data class LaserSpecs(
     val width: Float,
     val height: Float,
-    val name: String
+    val name: String,
+    val xPrecision: Float,
+    val yPrecision: Float
 )
 
 
 data class LaserProject(
     val images: List<Image>,
-    val LaserSpecs: LaserSpecs,
-    val renderSettings: RenderSettings
+    val laserSpecs: LaserSpecs = LaserSpecs(width = 170f,height=200f,name="CV01",xPrecision=0.1f,yPrecision=0.1f),
+    val renderSettings: RenderSettings = RenderSettings( speed = 0.5f, power = 0.5f)
 )
