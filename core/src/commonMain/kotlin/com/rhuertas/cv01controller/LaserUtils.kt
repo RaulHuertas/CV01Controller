@@ -11,7 +11,7 @@ data class OriginalImage(
     val uri: String
 )
 
-data class Image(
+data class TargetImage(
     val originalImage: OriginalImage,
     //Display parameters
     val width: Float,
@@ -37,7 +37,7 @@ data class LaserWorkspaceSpecs(
 
 
 data class LaserProject(
-    val images: List<Image>,
+    val target: TargetImage? = null,
     val laserSpecs: LaserWorkspaceSpecs = LaserWorkspaceSpecs(width = 170f,height=200f,name="CV01",xPrecision=0.1f,yPrecision=0.1f),
     val renderSettings: RenderSettings = RenderSettings( speed = 0.5f, power = 0.5f)
 )
