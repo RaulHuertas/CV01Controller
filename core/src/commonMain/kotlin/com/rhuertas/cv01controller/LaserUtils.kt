@@ -1,18 +1,18 @@
 package com.rhuertas.cv01controller
 
-data class OriginalImage(
+data class OriginalImageInfo(
     //physical dimensions of the image in millimeters
     val width: Int,
     val height: Int,
     //number of pixels in the image
-    val pixelsN: Float,
+    val pixelsW: Float,
     val pixelsH: Float,
     //path to the image file, can be a local path or a URL
     val uri: String
 )
 
 data class TargetImage(
-    val originalImage: OriginalImage,
+    val originalImage: OriginalImageInfo,
     //Display parameters
     val width: Float,
     val height: Float,
