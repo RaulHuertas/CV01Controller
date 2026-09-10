@@ -2,6 +2,8 @@ package com.rhuertas.cv01controller
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.floor
@@ -102,9 +105,7 @@ fun LaserCanvas(
                 val widthFraction = target.workspaceArea.width / project.laserSpecs.width
                 val heightFraction = target.workspaceArea.height / project.laserSpecs.height
 
-                LocalImage(
-                    uri = target.originalImage.uri,
-                    contentDescription = "Target image",
+                Box(
                     modifier = Modifier
                         .offset {
                             IntOffset(
@@ -115,8 +116,38 @@ fun LaserCanvas(
                         .size(
                             width = boxWidth * widthFraction,
                             height = boxHeight * heightFraction,
-                        ),
-                )
+                        )
+                        .pointerInput(target.workspaceArea, project.laserSpecs, boxWidth, boxHeight) {
+                            detectDragGestures { change, dragAmount ->
+                                change.consume()
+                                val deltaX =
+                                    if (boxWidth.value == 0f) {
+                                        0f
+                                    } else {
+                                        dragAmount.x * project.laserSpecs.width / boxWidth.value
+                                    }
+                                val deltaY =
+                                    if (boxHeight.value == 0f) {
+                                        0f
+                                    } else {
+                                        -dragAmount.y * project.laserSpecs.height / boxHeight.value
+                                    }
+                                val updatedArea = normalizeWorkspaceArea(
+                                    current = target.workspaceArea,
+                                    laserSpecs = project.laserSpecs,
+                                    x = target.workspaceArea.x + deltaX,
+                                    y = target.workspaceArea.y + deltaY,
+                                )
+                                onProjectChange(project.withWorkspaceArea(updatedArea))
+                            }
+                        }
+                ) {
+                    LocalImage(
+                        uri = target.originalImage.uri,
+                        contentDescription = "Target image",
+                        modifier = Modifier.matchParentSize(),
+                    )
+                }
             }
         }
 
