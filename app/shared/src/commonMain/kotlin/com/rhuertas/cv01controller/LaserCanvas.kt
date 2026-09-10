@@ -53,7 +53,6 @@ fun LaserCanvas(
     var yInput by remember(project.target?.workspaceArea?.y) {
         mutableStateOf(project.target?.workspaceArea?.y?.formatWorkspaceValue().orEmpty())
     }
-
     Column(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surface)
@@ -117,8 +116,7 @@ fun LaserCanvas(
                             width = boxWidth * widthFraction,
                             height = boxHeight * heightFraction,
                         )
-                        //.pointerInput(target.workspaceArea, project.laserSpecs, boxWidth, boxHeight) {
-                        .pointerInput( project.laserSpecs, boxWidth, boxHeight) {
+                        .pointerInput(project.laserSpecs, boxWidth, boxHeight) {
                             detectDragGestures { change, dragAmount ->
                                 change.consume()
                                 val deltaX =
