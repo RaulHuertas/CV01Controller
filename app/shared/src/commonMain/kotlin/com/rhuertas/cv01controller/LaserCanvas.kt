@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -62,6 +65,8 @@ fun LaserCanvas(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surface)
             .safeContentPadding()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
     ) {
         BoxWithConstraints(
@@ -117,8 +122,10 @@ fun LaserCanvas(
                             IntOffset(
                                 //x = (canvasWidth * xFraction).roundToPx(),
                                 //y = (canvasHeight * yFraction).roundToPx(),
-                                x = (canvasWidth.value * target.workspaceArea.x/project.laserSpecs.width).toInt(),
-                                y = (canvasHeight.value * target.workspaceArea.y/project.laserSpecs.height).toInt(),
+                                x = (canvasWidth.toPx() * target.workspaceArea.x/project.laserSpecs.width).toInt(),
+                                y = (canvasHeight.toPx() *((project.laserSpecs.height-target.workspaceArea.height)/project.laserSpecs.height)).toInt(),
+                                //y = (canvasHeight.value *((project.laserSpecs.height+target.workspaceArea.height)/project.laserSpecs.height)).toInt(),
+                                //y = 0
                             )
                         }
                         .size(
@@ -199,9 +206,11 @@ fun LaserCanvas(
                             workspaceArea = WorkspaceArea(
                                 width = targetWidth,
                                 height = targetHeight,
-                                x = x,
-                                y = y,
-                            ),
+                                //x = x,
+                                //y = y,
+                                x = 0f,
+                                y = 0f
+             ),
                         ),
                     ),
                 )
