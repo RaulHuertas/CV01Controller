@@ -148,9 +148,10 @@ fun LaserCanvas(
                                 )
                                 accumulatedX += deltaX
                                 accumulatedY += deltaY
+                                val currentArea = latestProject.target?.workspaceArea ?: return@detectDragGestures
                                 val updatedArea = normalizeWorkspacePosition(
-                                    current = target.workspaceArea,
-                                    laserSpecs = project.laserSpecs,
+                                    current = currentArea,
+                                    laserSpecs = latestProject.laserSpecs,
                                     x = accumulatedX,
                                     y = accumulatedY,
                                 )
