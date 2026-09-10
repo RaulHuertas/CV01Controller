@@ -123,7 +123,7 @@ fun LaserCanvas(
                                 //x = (canvasWidth * xFraction).roundToPx(),
                                 //y = (canvasHeight * yFraction).roundToPx(),
                                 x = (canvasWidth.toPx() * target.workspaceArea.x/project.laserSpecs.width).toInt(),
-                                y = (canvasHeight.toPx() *((project.laserSpecs.height-target.workspaceArea.height)/project.laserSpecs.height)).toInt(),
+                                y = (canvasHeight.toPx() *((project.laserSpecs.height+target.workspaceArea.y-target.workspaceArea.height)/project.laserSpecs.height)).toInt(),
                                 //y = (canvasHeight.value *((project.laserSpecs.height+target.workspaceArea.height)/project.laserSpecs.height)).toInt(),
                                 //y = 0
                             )
