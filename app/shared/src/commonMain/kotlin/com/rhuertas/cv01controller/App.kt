@@ -18,7 +18,7 @@ fun App() {
         var project by remember { mutableStateOf(LaserProject()) }
         LaserCanvas(
             project = project,
-            onProjectChange = { project = it },
+            updateProject = { project = it },
             imagePicker = imagePicker,
             modifier = Modifier.fillMaxSize(),
         )

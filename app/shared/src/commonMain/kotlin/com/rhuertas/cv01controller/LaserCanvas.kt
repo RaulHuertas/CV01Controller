@@ -33,10 +33,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.floor
 
+private const val TAG = "LaserCanvas"
+
 @Composable
 fun LaserCanvas(
     project: LaserProject,
-    onProjectChange: (LaserProject) -> Unit,
+    updateProject: (LaserProject) -> Unit,
     imagePicker: ImagePicker,
     modifier: Modifier = Modifier,
 ) {
@@ -137,7 +139,7 @@ fun LaserCanvas(
                                     x = target.workspaceArea.x + deltaX,
                                     y = target.workspaceArea.y + deltaY,
                                 )
-                                onProjectChange(project.withWorkspaceArea(updatedArea))
+                                updateProject(project.withWorkspaceArea(updatedArea))
                             }
                         }
                 ) {
@@ -170,7 +172,7 @@ fun LaserCanvas(
                 val x = (project.laserSpecs.width - targetWidth) / 2f
                 val y = (project.laserSpecs.height - targetHeight) / 2f
 
-                onProjectChange(
+                updateProject(
                     project.copy(
                         target = TargetImage(
                             originalImage = pickedImage,
@@ -202,7 +204,7 @@ fun LaserCanvas(
                             laserSpecs = project.laserSpecs,
                             width = width,
                         )
-                        onProjectChange(project.withWorkspaceArea(updatedArea))
+                        updateProject(project.withWorkspaceArea(updatedArea))
                     }
                 },
                 secondLabel = "Height",
@@ -215,7 +217,7 @@ fun LaserCanvas(
                             laserSpecs = project.laserSpecs,
                             height = height,
                         )
-                        onProjectChange(project.withWorkspaceArea(updatedArea))
+                        updateProject(project.withWorkspaceArea(updatedArea))
                     }
                 },
             )
@@ -233,7 +235,7 @@ fun LaserCanvas(
                             laserSpecs = project.laserSpecs,
                             x = x,
                         )
-                        onProjectChange(project.withWorkspaceArea(updatedArea))
+                        updateProject(project.withWorkspaceArea(updatedArea))
                     }
                 },
                 secondLabel = "Y",
@@ -246,7 +248,7 @@ fun LaserCanvas(
                             laserSpecs = project.laserSpecs,
                             y = y,
                         )
-                        onProjectChange(project.withWorkspaceArea(updatedArea))
+                        updateProject(project.withWorkspaceArea(updatedArea))
                     }
                 },
             )
