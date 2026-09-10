@@ -112,13 +112,17 @@ fun LaserCanvas(
                     modifier = Modifier
                         .offset {
                             IntOffset(
-                                x = (canvasWidth * xFraction).roundToPx(),
-                                y = (canvasHeight * yFraction).roundToPx(),
+                                //x = (canvasWidth * xFraction).roundToPx(),
+                                //y = (canvasHeight * yFraction).roundToPx(),
+                                x = (canvasWidth.value * target.workspaceArea.x/project.laserSpecs.width).toInt(),
+                                y = (canvasHeight.value * target.workspaceArea.y/project.laserSpecs.height).toInt(),
                             )
                         }
                         .size(
-                            width = canvasWidth * widthFraction,
-                            height = canvasHeight * heightFraction,
+                            //width = canvasWidth * widthFraction,
+                            //height = canvasHeight * heightFraction,
+                            width =  (canvasWidth * target.workspaceArea.width/project.laserSpecs.width),
+                            height = (canvasHeight * target.workspaceArea.height/project.laserSpecs.height),
                         )
                         .pointerInput(project.laserSpecs, canvasWidth, canvasHeight) {
                             var accumulatedX = target.workspaceArea.x
@@ -299,35 +303,6 @@ private fun WorkspaceFieldRow(
 private fun LaserProject.withWorkspaceArea(workspaceArea: WorkspaceArea): LaserProject =
     copy(
         target = target?.copy(workspaceArea = workspaceArea),
-    )
-
-internal fun workspaceDragDelta(
-    dragAmount: Offset,
-    laserSpecs: LaserWorkspaceSpecs,
-    canvasWidth: Float,
-    canvasHeight: Float,
-): Offset = Offset(
-    x = if (canvasWidth == 0f) {
-        0f
-    } else {
-        dragAmount.x * laserSpecs.width / canvasWidth
-    },
-    y = if (canvasHeight == 0f) {
-        0f
-    } else {
-        -dragAmount.y * laserSpecs.height / canvasHeight
-    },
-)
-
-private fun normalizeWorkspacePosition(
-    current: WorkspaceArea,
-    laserSpecs: LaserWorkspaceSpecs,
-    x: Float = current.x,
-    y: Float = current.y,
-): WorkspaceArea =
-    current.copy(
-        x = x.coerceIn(-current.width, laserSpecs.width),
-        y = y.coerceIn(-current.height, laserSpecs.height),
     )
 
 private fun normalizeWorkspaceArea(
