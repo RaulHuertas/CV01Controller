@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,8 +15,13 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -32,6 +38,18 @@ fun LaserCanvas(
     modifier: Modifier = Modifier,
 ) {
     val gridSpacing = 10f
+    var widthInput by remember(project.target?.workspaceArea?.width) {
+        mutableStateOf(project.target?.workspaceArea?.width?.formatWorkspaceValue().orEmpty())
+    }
+    var heightInput by remember(project.target?.workspaceArea?.height) {
+        mutableStateOf(project.target?.workspaceArea?.height?.formatWorkspaceValue().orEmpty())
+    }
+    var xInput by remember(project.target?.workspaceArea?.x) {
+        mutableStateOf(project.target?.workspaceArea?.x?.formatWorkspaceValue().orEmpty())
+    }
+    var yInput by remember(project.target?.workspaceArea?.y) {
+        mutableStateOf(project.target?.workspaceArea?.y?.formatWorkspaceValue().orEmpty())
+    }
 
     Column(
         modifier = modifier
@@ -139,5 +157,132 @@ fun LaserCanvas(
         }) {
             Text("Load image")
         }
+
+        project.target?.let { target ->
+            Spacer(modifier = Modifier.height(12.dp))
+
+            WorkspaceFieldRow(
+                firstLabel = "Width",
+                firstValue = widthInput,
+                onFirstValueChange = { newValue ->
+                    widthInput = newValue
+                    newValue.toFloatOrNull()?.let { width ->
+                        val updatedArea = normalizeWorkspaceArea(
+                            current = target.workspaceArea,
+                            laserSpecs = project.laserSpecs,
+                            width = width,
+                        )
+                        onProjectChange(project.withWorkspaceArea(updatedArea))
+                    }
+                },
+                secondLabel = "Height",
+                secondValue = heightInput,
+                onSecondValueChange = { newValue ->
+                    heightInput = newValue
+                    newValue.toFloatOrNull()?.let { height ->
+                        val updatedArea = normalizeWorkspaceArea(
+                            current = target.workspaceArea,
+                            laserSpecs = project.laserSpecs,
+                            height = height,
+                        )
+                        onProjectChange(project.withWorkspaceArea(updatedArea))
+                    }
+                },
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            WorkspaceFieldRow(
+                firstLabel = "X",
+                firstValue = xInput,
+                onFirstValueChange = { newValue ->
+                    xInput = newValue
+                    newValue.toFloatOrNull()?.let { x ->
+                        val updatedArea = normalizeWorkspaceArea(
+                            current = target.workspaceArea,
+                            laserSpecs = project.laserSpecs,
+                            x = x,
+                        )
+                        onProjectChange(project.withWorkspaceArea(updatedArea))
+                    }
+                },
+                secondLabel = "Y",
+                secondValue = yInput,
+                onSecondValueChange = { newValue ->
+                    yInput = newValue
+                    newValue.toFloatOrNull()?.let { y ->
+                        val updatedArea = normalizeWorkspaceArea(
+                            current = target.workspaceArea,
+                            laserSpecs = project.laserSpecs,
+                            y = y,
+                        )
+                        onProjectChange(project.withWorkspaceArea(updatedArea))
+                    }
+                },
+            )
+        }
     }
 }
+
+@Composable
+private fun WorkspaceFieldRow(
+    firstLabel: String,
+    firstValue: String,
+    onFirstValueChange: (String) -> Unit,
+    secondLabel: String,
+    secondValue: String,
+    onSecondValueChange: (String) -> Unit,
+) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = firstValue,
+            onValueChange = onFirstValueChange,
+            label = { Text(firstLabel) },
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp),
+            singleLine = true,
+        )
+        OutlinedTextField(
+            value = secondValue,
+            onValueChange = onSecondValueChange,
+            label = { Text(secondLabel) },
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp),
+            singleLine = true,
+        )
+    }
+}
+
+private fun LaserProject.withWorkspaceArea(workspaceArea: WorkspaceArea): LaserProject =
+    copy(
+        target = target?.copy(workspaceArea = workspaceArea),
+    )
+
+private fun normalizeWorkspaceArea(
+    current: WorkspaceArea,
+    laserSpecs: LaserWorkspaceSpecs,
+    width: Float = current.width,
+    height: Float = current.height,
+    x: Float = current.x,
+    y: Float = current.y,
+): WorkspaceArea {
+    val clampedWidth = width.coerceIn(1f, laserSpecs.width)
+    val clampedHeight = height.coerceIn(1f, laserSpecs.height)
+    val clampedX = x.coerceIn(0f, laserSpecs.width - clampedWidth)
+    val clampedY = y.coerceIn(0f, laserSpecs.height - clampedHeight)
+    return WorkspaceArea(
+        width = clampedWidth,
+        height = clampedHeight,
+        x = clampedX,
+        y = clampedY,
+    )
+}
+
+private fun Float.formatWorkspaceValue(): String =
+    if (this % 1f == 0f) {
+        toInt().toString()
+    } else {
+        toString()
+    }
