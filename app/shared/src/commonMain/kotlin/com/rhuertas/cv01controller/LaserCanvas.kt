@@ -244,6 +244,31 @@ fun LaserCanvas(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                    onClick = {
+                        updateProject(project.fixHeightProportionally())
+                    },
+                ) {
+                    Text("Fix Height")
+                }
+                Button(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp),
+                    onClick = {
+                        updateProject(project.fixWidthProportionally())
+                    },
+                ) {
+                    Text("Fix Width")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             WorkspaceFieldRow(
                 firstLabel = "X",
                 firstValue = xInput,
@@ -313,26 +338,30 @@ private fun LaserProject.withWorkspaceArea(workspaceArea: WorkspaceArea): LaserP
     )
 
 private fun LaserProject.fixHeightProportionally(): LaserProject {
-    val target = this.target?:return this
-    val workspaceArea = target.workspaceArea?:return this
+    val target = this.target ?: return this
+    val workspaceArea = target.workspaceArea
     val newHeight = workspaceArea.width * target.originalImage.pixelsH / target.originalImage.pixelsW
     return this.copy(
-        target = target.copy(workspaceArea = workspaceArea.copy(
-            width = workspaceArea.width,
-            height = newHeight
-        )),
+        target = target.copy(
+            workspaceArea = workspaceArea.copy(
+                width = workspaceArea.width,
+                height = newHeight,
+            ),
+        ),
     )
 }
 
-private fun LaserProject.changeHeightProportionally(): LaserProject {
-    val target = this.target?:return this
-    val workspaceArea = target.workspaceArea?:return this
+private fun LaserProject.fixWidthProportionally(): LaserProject {
+    val target = this.target ?: return this
+    val workspaceArea = target.workspaceArea
     val newWidth = workspaceArea.height * target.originalImage.pixelsW / target.originalImage.pixelsH
     return this.copy(
-        target = target.copy(workspaceArea = workspaceArea.copy(
-            width = newWidth,
-            height = workspaceArea.height
-        )),
+        target = target.copy(
+            workspaceArea = workspaceArea.copy(
+                width = newWidth,
+                height = workspaceArea.height,
+            ),
+        ),
     )
 }
 private fun normalizeWorkspaceArea(
