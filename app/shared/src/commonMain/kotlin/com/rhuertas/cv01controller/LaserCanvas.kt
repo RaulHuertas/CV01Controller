@@ -117,7 +117,8 @@ fun LaserCanvas(
                             width = boxWidth * widthFraction,
                             height = boxHeight * heightFraction,
                         )
-                        .pointerInput(target.workspaceArea, project.laserSpecs, boxWidth, boxHeight) {
+                        //.pointerInput(target.workspaceArea, project.laserSpecs, boxWidth, boxHeight) {
+                        .pointerInput( project.laserSpecs, boxWidth, boxHeight) {
                             detectDragGestures { change, dragAmount ->
                                 change.consume()
                                 val deltaX =
@@ -301,8 +302,10 @@ private fun normalizeWorkspaceArea(
 ): WorkspaceArea {
     val clampedWidth = width.coerceIn(1f, laserSpecs.width)
     val clampedHeight = height.coerceIn(1f, laserSpecs.height)
-    val clampedX = x.coerceIn(0f, laserSpecs.width - clampedWidth)
-    val clampedY = y.coerceIn(0f, laserSpecs.height - clampedHeight)
+    //val clampedX = x.coerceIn(0f, laserSpecs.width - clampedWidth)
+    //val clampedY = y.coerceIn(0f, laserSpecs.height - clampedHeight)
+    val clampedX = x.coerceIn(0f, laserSpecs.width )
+    val clampedY = y.coerceIn(0f, laserSpecs.height )
     return WorkspaceArea(
         width = clampedWidth,
         height = clampedHeight,
