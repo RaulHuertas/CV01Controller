@@ -43,6 +43,8 @@ fun LaserCanvas(
     modifier: Modifier = Modifier,
 ) {
     val gridSpacing = 10f
+    val dragX = remember { mutableStateOf(0f) }
+    val dragY = remember { mutableStateOf(0f) }
     var widthInput by remember(project.target?.workspaceArea?.width) {
         mutableStateOf(project.target?.workspaceArea?.width?.formatWorkspaceValue().orEmpty())
     }
@@ -121,12 +123,14 @@ fun LaserCanvas(
                         .pointerInput(project.laserSpecs, boxWidth, boxHeight) {
                             detectDragGestures { change, dragAmount ->
                                 change.consume()
+                                dragX.value = dragAmount.x
+                                dragY.value = dragAmount.y
                                 val deltaX =
-                                    if (boxWidth.value == 0f) {
-                                        0f
-                                    } else {
+                                    //if (boxWidth.value == 0f) {
+                                    //    0f
+                                    //} else {
                                         dragAmount.x * project.laserSpecs.width / boxWidth.value
-                                    }
+                                    //}
                                 val deltaY =
                                     if (boxHeight.value == 0f) {
                                         0f
@@ -153,6 +157,7 @@ fun LaserCanvas(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+        Text("Drag X: ${dragX.value}, Drag Y: ${dragY.value}")
         Button(onClick = {
             imagePicker.pickImage { pickedImage ->
                 if (pickedImage == null) return@pickImage
@@ -312,6 +317,7 @@ private fun normalizeWorkspaceArea(
         x = clampedX,
         y = clampedY,
     )
+
 }
 
 private fun Float.formatWorkspaceValue(): String =

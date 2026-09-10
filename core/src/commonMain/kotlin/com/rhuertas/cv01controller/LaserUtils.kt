@@ -1,5 +1,8 @@
 package com.rhuertas.cv01controller
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class OriginalImageInfo(
     //physical dimensions of the image in millimeters
     val physical_width: Float,
@@ -11,6 +14,7 @@ data class OriginalImageInfo(
     val uri: String
 )
 
+@Serializable
 data class WorkspaceArea(
     val width: Float,
     val height: Float,
@@ -18,18 +22,21 @@ data class WorkspaceArea(
     val y: Float,
 )
 
+@Serializable
 data class TargetImage(
     val originalImage: OriginalImageInfo,
     //Display parameters
     val workspaceArea: WorkspaceArea,
 )
 
+@Serializable
 data class RenderSettings(
     //Laser operation parameters
     val speed: Float,
     val power: Float,
 )
 
+@Serializable
 data class LaserWorkspaceSpecs(
     val width: Float,
     val height: Float,
@@ -39,6 +46,7 @@ data class LaserWorkspaceSpecs(
 )
 
 
+@Serializable
 data class LaserProject(
     val target: TargetImage? = null,
     val laserSpecs: LaserWorkspaceSpecs = LaserWorkspaceSpecs(width = 170f,height=200f,name="CV01",xPrecision=0.1f,yPrecision=0.1f),
