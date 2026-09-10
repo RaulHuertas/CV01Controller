@@ -99,8 +99,8 @@ fun LaserCanvas(
             }
 
             project.target?.let { target ->
-                val boxWidth = maxWidth
-                val boxHeight = maxHeight
+                val canvasWidth = maxWidth
+                val canvasHeight = maxHeight
                 val xFraction = target.workspaceArea.x / project.laserSpecs.width
                 val yFraction =
                     (project.laserSpecs.height - target.workspaceArea.y - target.workspaceArea.height) /
@@ -112,37 +112,41 @@ fun LaserCanvas(
                     modifier = Modifier
                         .offset {
                             IntOffset(
-                                x = (boxWidth * xFraction).roundToPx(),
-                                y = (boxHeight * yFraction).roundToPx(),
+                                x = (canvasWidth * xFraction).roundToPx(),
+                                y = (canvasHeight * yFraction).roundToPx(),
                             )
                         }
                         .size(
-                            width = boxWidth * widthFraction,
-                            height = boxHeight * heightFraction,
+                            width = canvasWidth * widthFraction,
+                            height = canvasHeight * heightFraction,
                         )
-                        .pointerInput(project.laserSpecs, boxWidth, boxHeight) {
-                            detectDragGestures { change, dragAmount ->
+                        .pointerInput(project.laserSpecs, canvasWidth, canvasHeight) {
+                            var accumulatedX = target.workspaceArea.x
+                            var accumulatedY = target.workspaceArea.y
+                            detectDragGestures(
+                                onDragStart = {
+                                    accumulatedX = target.workspaceArea.x
+                                    accumulatedY = target.workspaceArea.y
+                                },
+                            ) { change, dragAmount ->
                                 change.consume()
                                 dragX.value = dragAmount.x
                                 dragY.value = dragAmount.y
-                                val deltaX =
-                                    //if (boxWidth.value == 0f) {
-                                    //    0f
-                                    //} else {
-                                        dragAmount.x * project.laserSpecs.width / boxWidth.value
-                                    //}
-                                val deltaY =
-                                    if (boxHeight.value == 0f) {
-                                        0f
-                                    } else {
-                                        -dragAmount.y * project.laserSpecs.height / boxHeight.value
-                                    }
-                                val updatedArea = normalizeWorkspaceArea(
+                                val (deltaX, deltaY) = workspaceDragDelta(
+                                    dragAmount = dragAmount,
+                                    laserSpecs = project.laserSpecs,
+                                    canvasWidth = canvasWidth.value,
+                                    canvasHeight = canvasHeight.value,
+                                )
+                                accumulatedX += deltaX
+                                accumulatedY += deltaY
+                                val updatedArea = normalizeWorkspacePosition(
                                     current = target.workspaceArea,
                                     laserSpecs = project.laserSpecs,
-                                    x = target.workspaceArea.x + deltaX,
-                                    y = target.workspaceArea.y + deltaY,
+                                    x = accumulatedX,
+                                    y = accumulatedY,
                                 )
+
                                 updateProject(project.withWorkspaceArea(updatedArea))
                             }
                         }
@@ -297,6 +301,35 @@ private fun LaserProject.withWorkspaceArea(workspaceArea: WorkspaceArea): LaserP
         target = target?.copy(workspaceArea = workspaceArea),
     )
 
+internal fun workspaceDragDelta(
+    dragAmount: Offset,
+    laserSpecs: LaserWorkspaceSpecs,
+    canvasWidth: Float,
+    canvasHeight: Float,
+): Offset = Offset(
+    x = if (canvasWidth == 0f) {
+        0f
+    } else {
+        dragAmount.x * laserSpecs.width / canvasWidth
+    },
+    y = if (canvasHeight == 0f) {
+        0f
+    } else {
+        -dragAmount.y * laserSpecs.height / canvasHeight
+    },
+)
+
+private fun normalizeWorkspacePosition(
+    current: WorkspaceArea,
+    laserSpecs: LaserWorkspaceSpecs,
+    x: Float = current.x,
+    y: Float = current.y,
+): WorkspaceArea =
+    current.copy(
+        x = x.coerceIn(-current.width, laserSpecs.width),
+        y = y.coerceIn(-current.height, laserSpecs.height),
+    )
+
 private fun normalizeWorkspaceArea(
     current: WorkspaceArea,
     laserSpecs: LaserWorkspaceSpecs,
@@ -305,12 +338,12 @@ private fun normalizeWorkspaceArea(
     x: Float = current.x,
     y: Float = current.y,
 ): WorkspaceArea {
-    val clampedWidth = width.coerceIn(1f, laserSpecs.width)
-    val clampedHeight = height.coerceIn(1f, laserSpecs.height)
+    val clampedWidth = width.coerceIn(0f, laserSpecs.width)
+    val clampedHeight = height.coerceIn(0f, laserSpecs.height)
     //val clampedX = x.coerceIn(0f, laserSpecs.width - clampedWidth)
     //val clampedY = y.coerceIn(0f, laserSpecs.height - clampedHeight)
-    val clampedX = x.coerceIn(0f, laserSpecs.width )
-    val clampedY = y.coerceIn(0f, laserSpecs.height )
+    val clampedX = x.coerceIn(-clampedWidth, laserSpecs.width )
+    val clampedY = y.coerceIn(-clampedHeight, laserSpecs.height )
     return WorkspaceArea(
         width = clampedWidth,
         height = clampedHeight,
