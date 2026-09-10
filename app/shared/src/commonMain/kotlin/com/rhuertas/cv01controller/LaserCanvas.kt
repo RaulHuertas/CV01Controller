@@ -30,6 +30,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -47,8 +48,6 @@ fun LaserCanvas(
     modifier: Modifier = Modifier,
 ) {
     val gridSpacing = 10f
-    val dragX = remember { mutableStateOf(0f) }
-    val dragY = remember { mutableStateOf(0f) }
     var widthInput by remember(project.target?.workspaceArea?.width) {
         mutableStateOf(project.target?.workspaceArea?.width?.formatWorkspaceValue().orEmpty())
     }
@@ -120,17 +119,11 @@ fun LaserCanvas(
                     modifier = Modifier
                         .offset {
                             IntOffset(
-                                //x = (canvasWidth * xFraction).roundToPx(),
-                                //y = (canvasHeight * yFraction).roundToPx(),
                                 x = (canvasWidth.toPx() * target.workspaceArea.x/project.laserSpecs.width).toInt(),
                                 y = (canvasHeight.toPx() *((project.laserSpecs.height+target.workspaceArea.y-target.workspaceArea.height)/project.laserSpecs.height)).toInt(),
-                                //y = (canvasHeight.value *((project.laserSpecs.height+target.workspaceArea.height)/project.laserSpecs.height)).toInt(),
-                                //y = 0
                             )
                         }
                         .size(
-                            //width = canvasWidth * widthFraction,
-                            //height = canvasHeight * heightFraction,
                             width =  (canvasWidth * target.workspaceArea.width/project.laserSpecs.width),
                             height = (canvasHeight * target.workspaceArea.height/project.laserSpecs.height),
                         )
@@ -146,13 +139,12 @@ fun LaserCanvas(
                                 },
                             ) { change, dragAmount ->
                                 change.consume()
-                                dragX.value = dragAmount.x
-                                dragY.value = dragAmount.y
                                 val (deltaX, deltaY) = workspaceDragDelta(
-                                    dragAmount = dragAmount,
+                                    dragXPixels = dragAmount.x.dp.toPx(),
+                                    dragYPixels = dragAmount.y.dp.toPx(),
                                     laserSpecs = project.laserSpecs,
-                                    canvasWidth = canvasWidth.value,
-                                    canvasHeight = canvasHeight.value,
+                                    canvasWidth = canvasWidth.value.dp.toPx(),
+                                    canvasHeight = canvasHeight.value.dp.toPx(),
                                 )
                                 accumulatedX += deltaX
                                 accumulatedY += deltaY
@@ -179,8 +171,9 @@ fun LaserCanvas(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        Text("Drag X: ${dragX.value}, Drag Y: ${dragY.value}")
-        Button(onClick = {
+        Button(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            onClick = {
             imagePicker.pickImage { pickedImage ->
                 if (pickedImage == null) return@pickImage
 
@@ -206,8 +199,6 @@ fun LaserCanvas(
                             workspaceArea = WorkspaceArea(
                                 width = targetWidth,
                                 height = targetHeight,
-                                //x = x,
-                                //y = y,
                                 x = 0f,
                                 y = 0f
              ),
@@ -321,6 +312,29 @@ private fun LaserProject.withWorkspaceArea(workspaceArea: WorkspaceArea): LaserP
         target = target?.copy(workspaceArea = workspaceArea),
     )
 
+private fun LaserProject.changeWidthProportionally(newWidth: Float): LaserProject {
+    val target = this.target?:return this
+    val workspaceArea = target.workspaceArea?:return this
+    val newHeight = newWidth * workspaceArea.height / workspaceArea.width
+    return this.copy(
+        target = target.copy(workspaceArea = workspaceArea.copy(
+            width = newWidth,
+            height = newHeight
+        )),
+    )
+}
+
+private fun LaserProject.changeHeightProportionally(newHeight: Float): LaserProject {
+    val target = this.target?:return this
+    val workspaceArea = target.workspaceArea?:return this
+    val newWidth = newHeight * workspaceArea.width / workspaceArea.height
+    return this.copy(
+        target = target.copy(workspaceArea = workspaceArea.copy(
+            width = newWidth,
+            height = newHeight
+        )),
+    )
+}
 private fun normalizeWorkspaceArea(
     current: WorkspaceArea,
     laserSpecs: LaserWorkspaceSpecs,

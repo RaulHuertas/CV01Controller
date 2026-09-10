@@ -51,4 +51,8 @@ data class LaserProject(
     val target: TargetImage? = null,
     val laserSpecs: LaserWorkspaceSpecs = LaserWorkspaceSpecs(width = 170f,height=200f,name="CV01",xPrecision=0.1f,yPrecision=0.1f),
     val renderSettings: RenderSettings = RenderSettings( speed = 0.5f, power = 0.5f)
-)
+) {
+    fun tat() {
+        TODO("Not yet implemented")
+    }
+}
