@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlin.math.floor
+import kotlin.math.min
 
 @Composable
 @Preview
@@ -77,17 +78,11 @@ fun App() {
                 }
 
                 project.target?.let { target ->
-                    val scaleX = size.width / project.laserSpecs.width
-                    val scaleY = size.height / project.laserSpecs.height
                     val imageScale = size.width / project.laserSpecs.width
-                    val left = target.x * imageScale
-                    val top = size.height - ((target.y + target.height) * imageScale)
-                    val imageWidth = size.width/2
-                    val imageHeight = imageWidth * (target.originalImage.pixelsH / target.originalImage.pixelsW)
                     drawRect(
                         color = Color(0xFF6C63FF),
                         topLeft = Offset(0f, 0f),
-                        size = Size(imageWidth, imageHeight),
+                        size = Size(target.workspaceArea.width*imageScale, target.workspaceArea.height*imageScale),
                     )
                 }
             }
@@ -97,19 +92,30 @@ fun App() {
                 imagePicker.pickImage { pickedImage ->
                     if (pickedImage == null) return@pickImage
 
-                    val targetWidth = pickedImage.width.toFloat()
-                    val targetHeight = pickedImage.height.toFloat()
+                    val targetWidthRaw = pickedImage.physical_width
+                    val targetHeightRaw = pickedImage.physical_height
+                    var targetWidth = targetWidthRaw
+                    var targetHeight = targetHeightRaw
+                    if(targetWidthRaw>project.laserSpecs.width ){
+                        targetWidth = project.laserSpecs.width
+                        targetHeight = targetWidth*(pickedImage.pixelsH/pickedImage.pixelsW)
+                    }else if (targetHeightRaw>project.laserSpecs.height){
+                        targetHeight = project.laserSpecs.height
+                        targetWidth = targetHeight*(pickedImage.pixelsW/pickedImage.pixelsH)
+                    }
+
                     val x = (project.laserSpecs.width - targetWidth) / 2f
                     val y = (project.laserSpecs.height - targetHeight) / 2f
 
                     project = project.copy(
                         target = TargetImage(
                             originalImage = pickedImage,
-                            width = targetWidth,
-                            height = targetHeight,
-                            x = x,
-                            y = y,
-                            rotation = 0f,
+                            workspaceArea = WorkspaceArea(
+                                width = targetWidth,
+                                height = targetHeight,
+                                x = x,
+                                y = y,
+                            ),
                         ),
                     )
                 }
