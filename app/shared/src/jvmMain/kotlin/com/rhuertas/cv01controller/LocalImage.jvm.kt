@@ -5,11 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import java.io.File
 import java.net.URI
-import javax.imageio.ImageIO
+import org.jetbrains.skia.Image
 
 @Composable
 actual fun LocalImage(
@@ -19,7 +19,8 @@ actual fun LocalImage(
 ) {
     val image = produceState<ImageBitmap?>(initialValue = null, uri) {
         value = runCatching {
-            ImageIO.read(File(URI(uri)))?.asImageBitmap()
+            val bytes = File(URI(uri)).readBytes()
+            Image.makeFromEncoded(bytes).toComposeImageBitmap()
         }.getOrNull()
     }
 

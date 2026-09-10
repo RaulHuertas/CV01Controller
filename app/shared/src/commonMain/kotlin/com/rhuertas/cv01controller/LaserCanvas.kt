@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,6 +100,8 @@ fun LaserCanvas(
             }
 
             project.target?.let { target ->
+                val latestProject by rememberUpdatedState(project)
+                val latestUpdateProject by rememberUpdatedState(updateProject)
                 val canvasWidth = maxWidth
                 val canvasHeight = maxHeight
                 val xFraction = target.workspaceArea.x / project.laserSpecs.width
@@ -129,8 +132,10 @@ fun LaserCanvas(
                             var accumulatedY = target.workspaceArea.y
                             detectDragGestures(
                                 onDragStart = {
-                                    accumulatedX = target.workspaceArea.x
-                                    accumulatedY = target.workspaceArea.y
+                                    latestProject.target?.workspaceArea?.let { currentArea ->
+                                        accumulatedX = currentArea.x
+                                        accumulatedY = currentArea.y
+                                    }
                                 },
                             ) { change, dragAmount ->
                                 change.consume()
@@ -151,7 +156,9 @@ fun LaserCanvas(
                                     y = accumulatedY,
                                 )
 
-                                updateProject(project.withWorkspaceArea(updatedArea))
+                                latestUpdateProject(
+                                    latestProject.withWorkspaceArea(updatedArea),
+                                )
                             }
                         }
                 ) {

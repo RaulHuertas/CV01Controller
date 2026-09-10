@@ -22,12 +22,12 @@ class SharedCommonTest {
                 xPrecision = 1f,
                 yPrecision = 1f,
             ),
-            boxWidth = 400f,
-            boxHeight = 200f,
+            canvasWidth = 400f,
+            canvasHeight = 200f,
         )
 
         assertEquals(10f, delta.x)
-        assertEquals(-5f, delta.y)
+        assertEquals(5f, delta.y)
     }
 
     @Test
@@ -41,8 +41,8 @@ class SharedCommonTest {
                 xPrecision = 1f,
                 yPrecision = 1f,
             ),
-            boxWidth = 0f,
-            boxHeight = 0f,
+            canvasWidth = 0f,
+            canvasHeight = 0f,
         )
 
         assertEquals(0f, delta.x)
