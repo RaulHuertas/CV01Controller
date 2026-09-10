@@ -312,26 +312,26 @@ private fun LaserProject.withWorkspaceArea(workspaceArea: WorkspaceArea): LaserP
         target = target?.copy(workspaceArea = workspaceArea),
     )
 
-private fun LaserProject.changeWidthProportionally(newWidth: Float): LaserProject {
+private fun LaserProject.fixHeightProportionally(): LaserProject {
     val target = this.target?:return this
     val workspaceArea = target.workspaceArea?:return this
-    val newHeight = newWidth * workspaceArea.height / workspaceArea.width
+    val newHeight = workspaceArea.width * target.originalImage.pixelsH / target.originalImage.pixelsW
     return this.copy(
         target = target.copy(workspaceArea = workspaceArea.copy(
-            width = newWidth,
+            width = workspaceArea.width,
             height = newHeight
         )),
     )
 }
 
-private fun LaserProject.changeHeightProportionally(newHeight: Float): LaserProject {
+private fun LaserProject.changeHeightProportionally(): LaserProject {
     val target = this.target?:return this
     val workspaceArea = target.workspaceArea?:return this
-    val newWidth = newHeight * workspaceArea.width / workspaceArea.height
+    val newWidth = workspaceArea.height * target.originalImage.pixelsW / target.originalImage.pixelsH
     return this.copy(
         target = target.copy(workspaceArea = workspaceArea.copy(
             width = newWidth,
-            height = newHeight
+            height = workspaceArea.height
         )),
     )
 }
